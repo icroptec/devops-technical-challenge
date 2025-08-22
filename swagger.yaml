@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: OpenWeather Proxy API
+  version: 1.0.0
+  description: API that consumes OpenWeather and exposes 4 endpoints.
+servers:
+  - url: http://localhost:3000
+paths:
+  /weather/current:
+    get:
+      summary: Current weather by city
+      tags:
+        - Weather
+      parameters:
+        - in: query
+          name: city
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current weather data
+  /weather/forecast:
+    get:
+      summary: 5-day forecast (3h intervals)
+      tags:
+        - Weather
+      parameters:
+        - in: query
+          name: city
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Forecast data
+  /weather/coordinates:
+    get:
+      summary: Current weather by coordinates
+      tags:
+        - Weather
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: lon
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Weather data by coordinates
+  /weather/air_pollution:
+    get:
+      summary: Air quality by coordinates
+      tags:
+        - Weather
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: lon
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Air quality data
