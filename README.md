@@ -47,7 +47,7 @@ This project is a proxy REST API for OpenWeather, built with Node.js v22.18.0. I
 4. **Run the server**
 
    ```
-   node run dev
+   npm run dev
    ```
 
 5. **Access Swagger documentation**
