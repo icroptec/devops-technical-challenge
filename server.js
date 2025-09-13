@@ -83,4 +83,10 @@ app.get("/weather/air_pollution", async (req, res) => {
   }
 });
 
+
+// Endpoint de healthcheck
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}/docs`));
