@@ -53,7 +53,7 @@ jobs:
           TF_VAR_region: ${{ env.AWS_REGION }}
           TF_VAR_image: ${{ env.IMAGE_URI }}
         run: |
-          terraform apply -auto-approve -var-file=environments/prod/terraform.tfvars -var="image=${TF_VAR_image}"
+          terraform apply -auto-approve -var-file=environments/prod/terraform.tfvars -var="image=${{ env.IMAGE_URI }}"
 
       - name: Output URL
         run: echo "PROD URL: $ALB_URL"

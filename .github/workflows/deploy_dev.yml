@@ -1,11 +1,12 @@
 name: Deploy Dev
+
 on:
   push:
     branches: ["dev"]
 
 env:
   AWS_REGION: eu-west-1
-  PROJECT_NAME: icrop-weather
+  PROJECT_NAME: openweather-proxy
   ENVIRONMENT: dev
 
 jobs:
@@ -15,21 +16,20 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Terraform infra (dev)
+      - name: Terraform apply infra
         working-directory: infra/terraform
-        env:
-          TF_VAR_project_name: ${{ env.PROJECT_NAME }}
-          TF_VAR_environment: ${{ env.ENVIRONMENT }}
-          TF_VAR_region: ${{ env.AWS_REGION }}
         run: |
           terraform init -input=false
           terraform workspace select dev || terraform workspace new dev
@@ -37,7 +37,7 @@ jobs:
           echo "ECR_REPO=$(terraform output -raw ecr_repo)" >> $GITHUB_ENV
           echo "ALB_URL=$(terraform output -raw alb_url)" >> $GITHUB_ENV
 
-      - name: Build and push image
+      - name: Build and push Docker image
         run: |
           COMMIT=${GITHUB_SHA::7}
           IMAGE=${ECR_REPO}:${COMMIT}
@@ -45,15 +45,10 @@ jobs:
           docker push "$IMAGE"
           echo "IMAGE_URI=$IMAGE" >> $GITHUB_ENV
 
-      - name: Update service with new image
+      - name: Update ECS service with new image
         working-directory: infra/terraform
-        env:
-          TF_VAR_project_name: ${{ env.PROJECT_NAME }}
-          TF_VAR_environment: ${{ env.ENVIRONMENT }}
-          TF_VAR_region: ${{ env.AWS_REGION }}
-          TF_VAR_image: ${{ env.IMAGE_URI }}
         run: |
-          terraform apply -auto-approve -var-file=environments/dev/terraform.tfvars -var="image=${TF_VAR_image}"
+          terraform apply -auto-approve -var-file=environments/dev/terraform.tfvars -var="image=${IMAGE_URI}"
 
-      - name: Output URL
-        run: echo "DEV URL: $ALB_URL"
+      - name: Show app URL
+        run: echo "App DEV: $ALB_URL"
