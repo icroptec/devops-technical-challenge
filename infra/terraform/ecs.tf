@@ -31,10 +31,12 @@ resource "aws_ecs_task_definition" "task" {
     name  = "app"
     image = local.image_uri
     portMappings = [{ containerPort = var.container_port, hostPort = var.container_port, protocol = "tcp" }]
-    secrets = [{
-      name      = "OPENWEATHER_API_KEY"
-      valueFrom = aws_secretsmanager_secret.openweather.arn
-    }]
+    environment = [
+      {
+        name  = "OPENWEATHER_API_KEY"
+        value = var.openweather_api_key
+      }
+    ]
     logConfiguration = {
       logDriver = "awslogs"
       options = {

@@ -6,3 +6,7 @@ variable "desired_count"  { type = number }
 variable "cpu"            { type = number }
 variable "memory"         { type = number }
 variable "image"          { type = string, default = "" }
+variable "openweather_api_key" {
+	description = "OpenWeather API Key"
+	type        = string
+}
